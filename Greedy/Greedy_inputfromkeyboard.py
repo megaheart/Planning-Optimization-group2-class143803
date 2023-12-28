@@ -56,7 +56,6 @@ def greedy(N, e, l, d, t, C):
         timeVisit.append(selectTime)
     return newRoute
 
-# Existing imports and functions...
 
 
 if __name__ == "__main__":
