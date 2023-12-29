@@ -69,7 +69,7 @@ def compare_ans_and_compute_time():
     outputFolder = 'testcase/output'
     timeFile = 'time.txt'
     allFiles = ["N5.txt", "N10.txt", "N100.txt", "N200.txt", "N300.txt", "N500.txt", "N600.txt", "N700.txt", "N900.txt", "N1000.txt"]
-
+    # allFiles=["N5.txt"]
     with open(timeFile, 'w') as f:
         for file_name in allFiles:
             input_file = f"{inputFolder}/{file_name}"
@@ -107,15 +107,11 @@ def compare_ans_and_compute_time():
                 list_nodes = list(map(int, file.readline().split()))
                 time_visit = {}
                 time_visit[0] = 0
-
-                for k in range(1, len(list_nodes)):
-                    time_visit[list_nodes[k]] = max(time_visit[list_nodes[k-1]] + t[list_nodes[k-1]][list_nodes[k]] + d[list_nodes[k-1]], e[list_nodes[k]])
-                myAns = time_visit[list_nodes[num_nodes]] + t[list_nodes[num_nodes]][0] + d[list_nodes[num_nodes]]
+                myAns=calculate_total_time(list_nodes, t)
             # print(f'\nGreedy Algorithm Route for {file_name}: {ans}')
-            # print(f'Expected Output Route for {file_name}: {list_nodes}')
+            # print(f'Expected Output Route for {file_name}: {list_nodes}')            
             print(f'\nGreedy Algorithm Time for {file_name}: {timeAns}')
-            print(f'Expected Output Time for {file_name}: {myAns}')
-           
+            print(f'Expected Output Time for {file_name}: {myAns}')           
             if timeAns <= myAns:                                
                 print(f'{file_name}: Correct')
             else:
