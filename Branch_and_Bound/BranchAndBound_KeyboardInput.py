@@ -1,5 +1,6 @@
 best_time = 1000000000
 best_path = []
+min_time = 1000000000
 
 
 def branch_and_bound(num_nodes, e, l, d, w, time_matrix, x, k, current_time):
@@ -20,7 +21,7 @@ def branch_and_bound(num_nodes, e, l, d, w, time_matrix, x, k, current_time):
                     best_time = current_time
                     best_path = x.copy()
             else:
-                if current_time < best_time:
+                if current_time + min_time * (num_nodes - k) < best_time:
                     branch_and_bound(num_nodes, e, l, d, w, time_matrix, x, k + 1, current_time)
 
             current_time -= d[i]
@@ -55,10 +56,10 @@ if __name__ == '__main__':
         data = input().split(" ")
         for j in range(num_nodes + 1):
             time_matrix[i, j] = int(data[j])
+            min_time = min(min_time, time_matrix[i, j])
 
     branch_and_bound(num_nodes, e, l, d, w, time_matrix, x, 1, 0)
 
     print(num_nodes)
     for i in range(1, num_nodes + 1):
         print(best_path[i], end=" ")
-    print(best_time)
