@@ -56,8 +56,6 @@ def greedy(N, e, l, d, t, C):
         timeVisit.append(selectTime)
     return newRoute
 
-
-
 if __name__ == "__main__":
     #input from keyboard
 
@@ -76,8 +74,7 @@ if __name__ == "__main__":
             t[i] = list(map(int, input().split()))
             for j in range(N + 1):
                 C[i][j] = d[i] + t[i][j]
-       
-       
+              
     ans = greedy(N, e, l, d, t, C)
     print(N)
     print(" ".join(map(str, ans[1:])), '\n')
