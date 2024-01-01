@@ -1,0 +1,10 @@
+Time run testcase 1: 0 microseconds
+Time run testcase 2: 0 microseconds
+Time run testcase 3: 0 microseconds
+Time run testcase 4: 0 microseconds
+Time run testcase 5: 1132 microseconds
+Time run testcase 6: 993 microseconds
+Time run testcase 7: 1298 microseconds
+Time run testcase 8: 0 microseconds
+Time run testcase 9: 1999 microseconds
+Time run testcase 10: 1989 microseconds
