@@ -54,7 +54,7 @@ def CP_TSP_TimeWindow(num_nodes, e, l, d, time_matrix):
                 model.Add(M[j] <= M[i] + d[i] + time_matrix[i, j] + w[j] + (1 - x[i, j]) * 1000000000)
 
     # Muc tieu: Minimize tong thoi gian di het cac thanh pho
-    model.Minimize(sum(time_matrix[i, j] * x[i, j] for i in range(num_nodes) for j in range(num_nodes) if j != i))
+    model.Minimize(M[num_nodes] + d[num_nodes] + time_matrix[num_nodes, 0])
 
     # Solve model
     solver = cp_model.CpSolver()
