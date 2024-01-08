@@ -59,7 +59,7 @@ def calculate_M(x, N, e, l, C):
     for i in range(1, N + 1):
         M[x[i]] = max(e[x[i]], M[x[i - 1]] + C[x[i - 1]][x[i]])
         if M[x[i]] > l[x[i]]:
-            return -1, False
+            return M, False
     return M, True
 
 def calulate_cost(N, e, l, d, t_matrix, C, x):
