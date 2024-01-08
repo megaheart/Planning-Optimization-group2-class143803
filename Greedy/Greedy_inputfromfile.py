@@ -14,8 +14,11 @@ def GreedyTimeClose(N, l):
 
 def M_calculate(route, N, e, C):
     M = [0] * (N + 1)
-    for i in range(1, N + 1):
-        M[route[i]] = max(e[route[i]], M[route[i - 1]] + C[route[i - 1]][route[i]])
+    for i in range(1, len(route)):
+        
+        
+        if route[i] < N + 1 and route[i - 1] < N + 1:
+            M[route[i]] = max(e[route[i]], M[route[i - 1]] + C[route[i - 1]][route[i]])
     return M
 
 def cost(route, N, C):
@@ -31,37 +34,30 @@ def greedy(N, e, l, d, t, C):
     orderTime = [0] * (N + 1)
     newRoute = [0]
     visited = [False] * (N + 1)
-    timeVisit = [0]
+
     for i in range(1, N + 1):
         orderTime[iterSort[i]] = i
+
     for i in range(1, N + 1):
         nextCity = iterSort[i]
-        minCostOneStep = l[nextCity]
-        selectCity = nextCity
-        selectTime = max(e[nextCity], timeVisit[-1] + C[newRoute[-1]][nextCity])
-        for j in range(1, N + 1):
-            if not visited[j] and j != nextCity:
-                timeCome = max(e[j], timeVisit[-1] + C[newRoute[-1]][j])
-                if timeCome < minCostOneStep - C[j][nextCity]:
-                    minCostOneStep = timeCome + C[j][nextCity]
-                    selectCity = j
-                    selectTime = timeCome
-        if selectCity != nextCity:
-            jChange = orderTime[selectCity]
-            iterSort = oneOptChange(jChange, i, iterSort)
-            for i in range(1, N + 1):
-                orderTime[iterSort[i]] = i
-        newRoute.append(selectCity)
-        visited[selectCity] = True
-        timeVisit.append(selectTime)
+        if visited[nextCity]:
+            continue
+
+        newRoute.append(nextCity)
+        visited[nextCity] = True
+
+        timeVisit = M_calculate(newRoute, N, e, C)
+
+        if any(timeVisit[j] > l[j] for j in newRoute[1:]):
+            return None
+
     return newRoute
 
-# Existing imports and functions...
 def calculate_total_time(route, t):
     total_time = 0
     for i in range(1, len(route)):
         total_time += t[route[i - 1]][route[i]]
-    total_time += t[route[-1]][0]  # Add time to return to the starting point, if needed
+    total_time += t[route[-1]][0]
     return total_time
 
 def compare_ans_and_compute_time():
@@ -69,13 +65,11 @@ def compare_ans_and_compute_time():
     outputFolder = 'testcase/output'
     timeFile = 'time.txt'
     allFiles = ["N5.txt", "N10.txt", "N100.txt", "N200.txt", "N300.txt", "N500.txt", "N600.txt", "N700.txt", "N900.txt", "N1000.txt"]
-    # allFiles=["N5.txt"]
+
     with open(timeFile, 'w') as f:
         for file_name in allFiles:
             input_file = f"{inputFolder}/{file_name}"
             output_file = f"{outputFolder}/{file_name.replace('.txt', '_output.txt')}"
-            customers = []
-            t = []
             with open(input_file, 'r') as file:
                 N = int(file.readline())
                 e = [0]
@@ -86,8 +80,8 @@ def compare_ans_and_compute_time():
                     e.append(ek)
                     l.append(lk)
                     d.append(dk)
-                    customers.append([ek, lk, dk])
 
+                t = []
                 for _ in range(N + 1):
                     row = list(map(int, file.readline().split()))
                     t.append(row)
@@ -101,22 +95,22 @@ def compare_ans_and_compute_time():
             ans = greedy(N, e, l, d, t, C)
             end_time = time.time()
             f.write(f"{file_name}: {end_time - start_time}\n")
-            timeAns = calculate_total_time(ans, t)
-            with open(output_file, 'r') as file:
-                num_nodes = int(file.readline())
-                list_nodes = list(map(int, file.readline().split()))
-                time_visit = {}
-                time_visit[0] = 0
-                myAns=calculate_total_time(list_nodes, t)
-            # print(f'\nGreedy Algorithm Route for {file_name}: {ans}')
-            # print(f'Expected Output Route for {file_name}: {list_nodes}')            
-            print(f'\nGreedy Algorithm Time for {file_name}: {timeAns}')
-            print(f'Expected Output Time for {file_name}: {myAns}')           
-            if timeAns <= myAns:                                
-                print(f'{file_name}: Correct')
-            else:
-                print(f'{file_name}: Wrong')
 
-# Main execution block
+            if ans is not None:
+                timeAns = calculate_total_time(ans, t)
+                with open(output_file, 'r') as file:
+                    num_nodes = int(file.readline())
+                    list_nodes = list(map(int, file.readline().split()))
+                    myAns = calculate_total_time(list_nodes, t)
+
+                print(f'\nGreedy Algorithm Time for {file_name}: {timeAns}')
+                print(f'Expected Output Time for {file_name}: {myAns}')           
+                if timeAns <= myAns:                                
+                    print(f'{file_name}: Correct')
+                else:
+                    print(f'{file_name}: Wrong')
+            else:
+                print(f'{file_name}: Lộ trình không khả thi')
+
 if __name__ == "__main__":
     compare_ans_and_compute_time()
