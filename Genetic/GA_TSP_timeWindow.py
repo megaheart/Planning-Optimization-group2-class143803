@@ -1,30 +1,38 @@
 import random
+import matplotlib.pyplot as plt
 
 def fitness(route, e, l, d, t):
     time = 0
-    total_time = 0
     k = 0
-    real_time = 0
     for i in range(len(route) - 1):
         a, b = route[i], route[i+1]
         travel_time = t[a][b]
         time = max(time + travel_time + d.get(b, 0), e.get(b, 0) )
-        real_time = real_time + travel_time + d.get(b,0)
         if (time > l.get(b,0)):
             k += 1
-        total_time += max(0,time - l.get(b,0))
-    s = sum([t[0][i] for i in range(len(route)-1)])/len(route)
-    return k*s + total_time + time
+    s = sum([t[0][i] for i in range(len(route)-1)])
+    return k*s + time 
+
+# def fitness(route, e, l, d, t):
+#     time = 0
+#     k = 0
+#     for i in range(len(route) - 1):
+#         a, b = route[i], route[i+1]
+#         travel_time = t[a][b]
+#         time += t[a][b]
+#     return time
 
 def check(route, e, l, d, t):
     time = 0
     total_time = 0
     k = 0
     q = 0
+    check_time = 0
     for i in range(len(route) - 1):
         a, b = route[i], route[i+1]
         # print (f"check location {a} and {b}")
         travel_time = t[a][b]
+        check_time += t[a][b]
         time = max(time + travel_time + d.get(b, 0), e.get(b, 0))
         # print(f"time to go to {b}: {time}")
         if (time > l.get(b,0)):
@@ -33,13 +41,11 @@ def check(route, e, l, d, t):
                 q = i+1
         total_time += time - e.get(b, 0) + d.get(b, 0)
         # print(f"total time: {total_time}")
-    return total_time, time, k, q
+    return time, check_time, k-1, q
 
 def stuck(route, e, l, d, t):
     time = 0
-    total_time = 0
     k = 0
-    q = 0
     for i in range(len(route) - 1):
         a, b = route[i], route[i+1]
         # print (f"check location {a} and {b}")
@@ -52,16 +58,26 @@ def stuck(route, e, l, d, t):
                 return i+1
     return len(route)
 
-def crossover(parent1, parent2,generation):
+def crossover(parent1, parent2):
     cut = random.randint(1, len(parent1) - 1)
-    if random.random() < 300/(generation+1):
-        cut1 = stuck(parent1,e,l,d,t) - 1
-        cut2 = stuck(parent2,e,l,d,t) - 1
-        child1 = parent1[:cut1] + [x for x in parent2 if x not in parent1[:cut1]]
-        child2 = parent2[:cut2] + [x for x in parent1 if x not in parent2[:cut2]]
+    end_cut = random.randint(cut,len(parent1)-1)
+    if random.random() < 0.3:
+        cut1 = stuck([0]+parent1+[0],e,l,d,t) - 1
+        cut2 = stuck([0]+parent2+[0],e,l,d,t) - 1
+        if cut1 == len(parent1):
+            cut1 = cut
+        if cut2 == len(parent2):
+            cut2 = cut
+        end_cut = random.randint(max(cut1,cut2), len(parent1)-1)
+        # child1 = parent1[:cut1] + [x for x in parent2 if x not in parent1[:cut1]]
+        # child2 = parent2[:cut2] + [x for x in parent1 if x not in parent2[:cut2]]
+        child1 = parent1[:cut1] + [x for x in parent2 if x in parent1[cut1:end_cut]] + parent1[end_cut:]
+        child2 = parent2[:cut2] + [x for x in parent1 if x in parent2[cut2:end_cut]] + parent2[end_cut:]
     else:
-        child1 = parent1[:cut] + [x for x in parent2 if x not in parent1[:cut]]
-        child2 = parent2[:cut] + [x for x in parent1 if x not in parent2[:cut]]
+        # child1 = parent1[:cut] + [x for x in parent2 if x not in parent1[:cut]]
+        # child2 = parent2[:cut] + [x for x in parent1 if x not in parent2[:cut]]
+        child1 = parent1[:cut] + [x for x in parent2 if x in parent1[cut:end_cut]] + parent1[end_cut:]
+        child2 = parent2[:cut] + [x for x in parent1 if x in parent2[cut:end_cut]] + parent2[end_cut:]
     return child1, child2
 
 # def crossover(parent1, parent2):
@@ -72,9 +88,14 @@ def crossover(parent1, parent2,generation):
 #     return child1, child2
 
 
+# def mutate(route):
+#     i, j = random.sample(range(len(route)), 2)
+#     route[i], route[j] = route[j], route[i]
+
 def mutate(route):
-    i, j = random.sample(range(len(route)), 2)
-    route[i], route[j] = route[j], route[i]
+    i, j = sorted(random.sample(range(len(route)), 2))
+    route[i:j+1] = reversed(route[i:j+1])
+
 
 # N = int(input())
 # e, l, d = {}, {}, {}
@@ -91,7 +112,7 @@ def mutate(route):
 
 e, l, d = {}, {}, {}
 t = []
-with open('testcase/input/N10.txt', 'r') as file:
+with open('testcase/input/N500.txt', 'r') as file:
     N = int(file.readline().strip())
 
     for i in range(1, N + 1):
@@ -100,42 +121,53 @@ with open('testcase/input/N10.txt', 'r') as file:
     for _ in range(N + 1):
         t.append(list(map(int, file.readline().strip().split())))
 
+
 def is_in_population(individual, population):
     return individual in population
 
-population = [random.sample(range(1, N+1), N) for _ in range(1000)]
-best_fitness_each_generation = []
+def ga():
+    population = [random.sample(range(1, N + 1), N) for _ in range(1000)]
+    # elements = list(range(1,N+1))
+    # sorted_elements = sorted(elements, key=lambda x: l.get(x,0))
+    # population.append(sorted_elements)
+    best_fitness_each_generation = []
+    best_res = 999999999
+    slide = min(int(N/2), 30)
+    end = min (N,60)
+    for generation in range(2000):
+        population.sort(key=lambda route: fitness([0] + route + [0], e, l, d, t))
+        best_fitness_each_generation.append(fitness([0] + population[0] + [0], e, l, d, t))
+        if best_fitness_each_generation[generation]<best_res:
+            best_res = best_fitness_each_generation[generation]
+            sol = population[0]
+        new_population = population[:end]
+        if generation> 25:
+            if best_res-best_fitness_each_generation[generation-25] > -1:
+                return sol
+        while len(new_population) < 2*end:
+            parent1 = random.choices(population[:slide], k=1)[0]
+            parent2 = random.choices(population[slide:end], k=1)[0]
+            # parents = random.choices(population[:N],k=4)
+            # sorted_parents = parents.sort(key=lambda route: fitness([0] + route + [0], e, l, d, t))
+            # parent1 = sorted_parents[0]
+            # parent2 = sorted_parents[1]
+            child1, child2 = crossover(parent1, parent2)
+            if random.random() < 0.1:
+                mutate(child1)
+            if random.random() < 0.1:
+                mutate(child2)
+            # new_population += [child1, child2]
+            if not is_in_population(child1, new_population):
+                new_population.append(child1)
+            if not is_in_population(child2, new_population):
+                new_population.append(child2)
+        population = new_population
+    # best_route = population[0]
+    return sol
 
-for generation in range(2000):
-    population.sort(key=lambda route: fitness([0] + route + [0], e, l, d, t))
-    best_fitness_each_generation.append(fitness([0] + population[0] + [0], e, l, d, t))
-    new_population = population[:20]
-
-    while len(new_population) < 50:
-        # parent1 = random.choices(population[:50], k=1)[0]
-        # parent2 = random.choices(population[51:100], k=1)[0]
-        parent1, parent2 = random.choices(population[:20],k=2)
-        child1, child2 = crossover(parent1, parent2,generation)
-        if random.random() < 0.1:
-            mutate(child1)
-        if random.random() < 0.1:
-            mutate(child2)
-        # new_population += [child1, child2]
-        if not is_in_population(child1, new_population):
-            new_population.append(child1)
-        if not is_in_population(child2, new_population):
-            new_population.append(child2)
-    population = new_population
-
-best_route = population[0]
+best_route = ga()
 print(N)
 print(" ".join(map(str, best_route)))
 print(check([0] + best_route + [0],e,l,d,t))
-#
-# plt.plot(best_fitness_each_generation)
-# plt.xlabel('Generation')
-# plt.ylabel('Best Fitness')
-# plt.title('Best Fitness over Generations')
-# plt.show()
 
 # print(check([0] + real_route + [0],e,l,d,t))
