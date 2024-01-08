@@ -109,6 +109,7 @@ def compare_ans_and_compute_time():
     write_time_to = './testcase/actual_output/time.txt'
     with open(write_time_to, 'w') as f:
         for i in range(len(input_file)):
+            print("\nStart test case [\"" + input_file[i] + "\"]\n")
             eld = []
             t = []
             with open(os.path.join(base_path_input, input_file[i]), 'r') as file:
@@ -133,7 +134,7 @@ def compare_ans_and_compute_time():
                 list_nodes = list(map(int, file.readline().split()))
                 time_visit = {}
                 time_visit[0] = 0
-                list_nodes = [0] + list_nodes
+                # list_nodes = [0] + list_nodes
                 d = [0] + [eld[i][2] for i in range(len(eld))]
                 e = [0] + [eld[i][0] for i in range(len(eld))]
                 for k in range(1, len(list_nodes)):
@@ -141,9 +142,11 @@ def compare_ans_and_compute_time():
                 testcaseAns = time_visit[list_nodes[num_nodes]] + t[list_nodes[num_nodes]][0] + d[list_nodes[num_nodes]]
 
             if ans == testcaseAns:
-                print('\n Correct')
+                print('\n\n Same, ', "testcaseAns = ", testcaseAns, "ans = ", ans)
+            elif ans < testcaseAns:
+                print('\n\n Better, ', "testcaseAns = ", testcaseAns, "ans = ", ans)    
             else:
-                print('\n Wrong', "testcaseAns = ", testcaseAns, "ans = ", ans)
+                print('\n\n Worse, ', "testcaseAns = ", testcaseAns, "ans = ", ans)
 
 if __name__ == '__main__':
     

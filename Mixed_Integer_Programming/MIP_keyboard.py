@@ -102,17 +102,39 @@ def TSP_mixed_integer_programming(N, eld, t_matrix):
     return model.Objective().Value()
 
 if __name__ == '__main__':
-    
+
+    # File
+    # base_path_input = './testcase/input'
+    # input_files = ["N5.txt", "N10.txt", "N100.txt", "N200.txt", "N300.txt", "N500.txt", "N600.txt", "N700.txt", "N900.txt", "N1000.txt"]
+    # input_file = os.path.join(base_path_input, "N1000.txt")
+
+    # with open(input_file, 'r') as f:
+    #     N = int(f.readline())
+    #     eld = []
+    #     t = []
+    #     for i in range(1, N+1):
+    #         e, l, d = map(int, f.readline().split())
+    #         eld.append([e, l, d])
+
+    #     for _ in range(N+1):
+    #         row = list(map(int, f.readline().split()))
+    #         t.append(row)
+    #     start_time = time.time()
+    #     ans = TSP_mixed_integer_programming(N, eld, t)
+    #     end_time = time.time()
+    #     print("\nTime exec with input \"" + input_file + "\": " + str(end_time - start_time) + ' (s)\n')
+        
+
+    # Keyboard
     N = int(input())
-    customers = []
+    eld = []
     t = []
     for i in range(1, N+1):
         e, l, d = map(int, input().split())
-        customers.append([e, l, d])
+        eld.append([e, l, d])
 
     for _ in range(N+1):
         row = list(map(int, input().split()))
         t.append(row)
 
-    ans = TSP_mixed_integer_programming(N, customers, t)
-
+    ans = TSP_mixed_integer_programming(N, eld, t)
