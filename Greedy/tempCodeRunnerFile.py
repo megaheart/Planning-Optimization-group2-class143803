@@ -1,1 +1,0 @@
-    timeFile = 'testcase/time.txt'
