@@ -29,27 +29,38 @@ def oneOptChange(i, j, route):
     newRoute = route[:j] + [temp] + route[j:i] + route[i+1:]
     return newRoute
 
-def greedy(N, e, l, d, t, C):
+def greedy(N, e, l, C):
+    # Greedy algorithm to find an initial feasible route
     iterSort = GreedyTimeClose(N, l)
-    orderTime = [0] * (N + 1)
     newRoute = [0]
     visited = [False] * (N + 1)
-
-    for i in range(1, N + 1):
-        orderTime[iterSort[i]] = i
 
     for i in range(1, N + 1):
         nextCity = iterSort[i]
         if visited[nextCity]:
             continue
+        minCostOneStep = l[nextCity]
+        selectCity = nextCity
+        selectTime = max(e[nextCity], M_calculate(newRoute, N, e, C)[-1] + C[newRoute[-1]][nextCity])
+
+        for j in range(1, N + 1):
+            if not visited[j] and j != nextCity:
+                timeCome = max(e[j], M_calculate(newRoute, N, e, C)[-1] + C[newRoute[-1]][j])
+                if timeCome < minCostOneStep - C[j][nextCity]:
+                    minCostOneStep = timeCome + C[j][nextCity]
+                    selectCity = j
+                    selectTime = timeCome
+        
+        if selectCity != nextCity:
+            jChange = iterSort.index(selectCity)
+            iterSort = oneOptChange(jChange, i, iterSort)
+            nextCity = selectCity
 
         newRoute.append(nextCity)
         visited[nextCity] = True
-
         timeVisit = M_calculate(newRoute, N, e, C)
-
         if any(timeVisit[j] > l[j] for j in newRoute[1:]):
-            return None
+                return None
 
     return newRoute
 
@@ -92,7 +103,7 @@ def compare_ans_and_compute_time():
                     C[i][j] = d[i] + t[i][j]
 
             start_time = time.time()
-            ans = greedy(N, e, l, d, t, C)
+            ans =  greedy(N, e, l, C)
             end_time = time.time()
             f.write(f"{file_name}: {end_time - start_time}\n")
 
